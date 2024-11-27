@@ -38,9 +38,8 @@ cp /tmp/x509up_uXXXXX ~/x509up_uXXXXX
 export X509_USER_PROXY=~/x509up_uXXXXX
 
 # Submit the job
-python condor/prepare_condor_jobs.py --job_name "test_new" --max_events 1000 --job_flavour "tomorrow"
-cd condor/jobs/
-condor_submit train_test_new.jdl
+python condor/prepare_condor_jobs.py --job_name "test_new" --max_events 1000 --job_flavour "espresso"
+condor_submit jobs/train_test_new.jdl
 ```
 
 Example condor scripts are available in the jobs directory:

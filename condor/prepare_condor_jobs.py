@@ -14,12 +14,11 @@ set -e
 cd {project_path}
 
 # Activate pre-configured environment
-. /cvmfs/sft.cern.ch/lcg/views/LCG_106/x86_64-el9-gcc13-opt/setup.sh
-source {virtual_env}/bin/activate
+. setup.sh
 
 # Run the training
 name='{job_name}'
-python scripts/train_multiclass_DNN.py --inputPath {input_path} --output_dir {eos_path}  --num_events {max_events} --job_name {job_name} -j {json}
+python scripts/train_multiclass_DNN.py --inputPath {input_path} --output_dir {eos_path}  --num_events {max_events} --job_name {job_name} --json {json}
 
 echo "Training Done"
 
@@ -71,7 +70,7 @@ def main():
     parser.add_argument("--request_gpus", type=int, default=1, help="Number of GPUs to request (default: 1).")
     parser.add_argument("--job_flavour", default="workday", help='Job flavour (default: "workday").')
     parser.add_argument("--virtual_env", default=default_virtual_env_name, help=f"Name of the virtual environment (default: {default_virtual_env_name}).")
-    parser.add_argument('-j', '--json', dest='json', help='input variable json file', default='input_variables.json', type=str)
+    parser.add_argument('-j', '--json', dest='json', help='input variable json file', default='./data/input_variables.json', type=str)
 
 
     args = parser.parse_args()
