@@ -11,7 +11,7 @@ source xzz2l2nu_env/bin/activate
 
 # Run the training
 name='test_new'
-python train_multiclass_DNN.py --inputPath /eos/user/a/avijay/HZZ_mergedrootfiles/ --output_dir /eos/user/r/rasharma/HZZ2l2nu/  --num_events 1000 --job_name test_new -j input_variables.json
+python scripts/train_multiclass_DNN.py --inputPath /eos/user/a/avijay/HZZ_mergedrootfiles/ --output_dir /eos/user/r/rasharma/HZZ2l2nu/  --num_events 1000 --job_name test_new -j input_variables.json
 
 echo "Training Done"
 

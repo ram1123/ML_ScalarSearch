@@ -19,7 +19,7 @@ source {virtual_env}/bin/activate
 
 # Run the training
 name='{job_name}'
-python train_multiclass_DNN.py --inputPath {input_path} --output_dir {eos_path}  --num_events {max_events} --job_name {job_name} -j {json}
+python scripts/train_multiclass_DNN.py --inputPath {input_path} --output_dir {eos_path}  --num_events {max_events} --job_name {job_name} -j {json}
 
 echo "Training Done"
 
@@ -77,6 +77,7 @@ def main():
     args = parser.parse_args()
 
     ensure_directory_exists("jobs")
+    ensure_directory_exists("logs")
 
     # Create .sh and .jdl files
     sh_script_name = f"jobs/train_{args.job_name}.sh"
