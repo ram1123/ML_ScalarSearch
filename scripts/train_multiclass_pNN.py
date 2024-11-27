@@ -20,7 +20,6 @@ from tensorflow.keras.callbacks import EarlyStopping, CSVLogger, LearningRateSch
 from tensorflow.keras.callbacks import Callback
 from tensorflow.keras.optimizers import Nadam
 import uproot
-from plotting.plotter import plotter
 
 from plotting.plotter import plot_correlation_matrix
 from plotting.plotter import plot_training_progress
@@ -32,6 +31,8 @@ from plotting.plotter import plot_overfitting
 from plotting.plotter import plot_overfitting_per_class
 from plotting.plotter import plot_overfitting_multiclass
 from plotting.plotter import plot_classifier_output
+
+from plotting.utils import ensure_directory_exists
 
 # Set TensorFlow and Matplotlib configurations
 os.environ['MPLCONFIGDIR'] = tempfile.mkdtemp()
@@ -112,12 +113,6 @@ class PerMassMetricsCallback(Callback):
 
             print(f"Saved accuracy and loss plots for mass {mass}")
 
-
-# Ensure directory exists
-def ensure_directory_exists(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
 # Load data from ROOT files into a DataFrame
 def load_data(inputPath, variables, num_events, csv_path, metadata_path, signal_masses):
     """
@@ -197,6 +192,7 @@ def load_data(inputPath, variables, num_events, csv_path, metadata_path, signal_
 
     return data
 
+
 # Ensure input data is numeric and clean
 def preprocess_data(data):
     # Replace NaN or infinite values with a default (e.g., 0 or mean)
@@ -208,15 +204,23 @@ def preprocess_data(data):
 # Metrics for evaluation
 METRICS = [
     tf.keras.metrics.CategoricalAccuracy(name='accuracy'),
+    tf.keras.metrics.TruePositives(name='tp'),
+    tf.keras.metrics.FalsePositives(name='fp'),
+    tf.keras.metrics.TrueNegatives(name='tn'),
+    tf.keras.metrics.FalseNegatives(name='fn'),
+    tf.keras.metrics.BinaryAccuracy(name='accuracy'),
+    tf.keras.metrics.Precision(name='precision'),
+    tf.keras.metrics.Recall(name='recall'),
     tf.keras.metrics.AUC(name='auc'),
+    tf.keras.metrics.AUC(name='prc', curve='PR'), # precision-recall curve
 ]
 
 # Custom learning rate scheduler
 def custom_learning_rate_scheduler(epoch, lr):
     if epoch < 10:
-        return 0.01
+        return 0.001
     else:
-        return float(lr * tf.math.exp(-0.05 * (epoch - 10)))
+        return float(lr * tf.math.exp(-0.005 * (epoch - 10)))
 
 # Build and compile a multi-class DNN model
 def build_model(input_dim, activation='relu', dropout_rate=0.2, learn_rate=0.001):
@@ -252,7 +256,7 @@ def build_parametric_model(input_dim, activation='relu', dropout_rate=0.2, learn
 
 # Train the model with early stopping
 def train_model(model, X_train, Y_train, X_val, Y_val, batch_size, epochs, output_dir, class_weight=None):
-    early_stopping = EarlyStopping(patience=10, monitor='val_loss', restore_best_weights=True)
+    early_stopping = EarlyStopping(patience=21, monitor='val_loss', restore_best_weights=True)
     csv_logger = CSVLogger(os.path.join(output_dir, 'training.log'))
     lr_scheduler = LearningRateScheduler(custom_learning_rate_scheduler)
 
@@ -318,11 +322,11 @@ def main():
     parser.add_argument('--inputPath', required=True, help="Path to input ROOT files.")
     parser.add_argument('--output_dir', required=True, help="Directory to save outputs.")
     parser.add_argument('--job_name', type=str, default="DNN", help="Job name.")
-    parser.add_argument('--epochs', type=int, default=50, help="Number of epochs.")
+    parser.add_argument('--epochs', type=int, default=100, help="Number of epochs.")
     parser.add_argument('--batch_size', type=int, default=32, help="Batch size.")
-    parser.add_argument('--learn_rate', type=float, default=0.001, help="Learning rate.")
+    parser.add_argument('--learn_rate', type=float, default=0.0001, help="Learning rate.")
     parser.add_argument('--num_events', type=int, default=1000, help="Number of events to load.")
-    parser.add_argument('--json', type=str, default='input_variables.json', help="Input variable JSON file.")
+    parser.add_argument('--json', type=str, default='./data/input_variables.json', help="Input variable JSON file.")
 
     args = parser.parse_args()
 
@@ -332,10 +336,7 @@ def main():
     # Create list of headers for dataset .csv
     input_var_jsonFile = open(args.json,'r')
     variable_list = json.load(input_var_jsonFile).items()
-    variables = []
-    for key,var in variable_list:
-        variables.append(key)
-
+    variables = [key for key, var in variable_list]
     print(f"Variables: {variables}")
 
     # Define paths and parameters

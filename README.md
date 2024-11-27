@@ -26,6 +26,7 @@ cd ML_ScalarSearch
 python scripts/train_multiclass_DNN.py --inputPath </path/to/data> --output_dir </path/to/output> --num_events 1000 --job_name DNN_test_newFW
 # Example command
 python scripts/train_multiclass_DNN.py --inputPath /eos/user/a/avijay/HZZ_mergedrootfiles/ --output_dir /eos/user/r/rasharma/HZZ2l2nu/  --num_events 1000 --job_name DNN_test_newFW
+python scripts/train_multiclass_pNN.py --inputPath /eos/user/a/avijay/HZZ_mergedrootfiles/ --output_dir /eos/user/r/rasharma/HZZ2l2nu/  --num_events 1000 --job_name DNN_test_newFW_pnn
 ```
 
 4. Condor submission:
