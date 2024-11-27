@@ -1,0 +1,10 @@
+executable              = jobs/train_test_new.sh
+arguments               = $(ClusterId)$(ProcId)
+output                  = logs/train.$(ClusterId).$(ProcId).out
+error                   = logs/train.$(ClusterId).$(ProcId).err
+log                     = logs/train.$(ClusterId).log
++JobFlavour             = "tomorrow"
+when_to_transfer_output = ON_EXIT
+request_GPUs            = 1
+request_CPUs = 1
+queue
